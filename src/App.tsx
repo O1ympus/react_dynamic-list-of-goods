@@ -8,29 +8,20 @@ import { getAll, get5First, getRedGoods } from './api/goods';
 export const App: React.FC = () => {
   const [goods, setGoods] = useState<Good[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleLoadAll = () => {
+  const handleRequest = (apiFn: () => Promise<Good[]>) => {
     setLoading(true);
-    getAll()
-      .then(setGoods)
-      .catch(() => alert('Failed to load all goods. Please try again.'))
-      .finally(() => setLoading(false));
-  };
+    setError(null);
 
-  const handleLoad5First = () => {
-    setLoading(true);
-    get5First()
+    apiFn()
       .then(setGoods)
-      .catch(() => alert('Failed to load first 5 goods'))
-      .finally(() => setLoading(false));
-  };
-
-  const handleLoadRed = () => {
-    setLoading(true);
-    getRedGoods()
-      .then(setGoods)
-      .catch(() => alert('Failed to load red goods'))
-      .finally(() => setLoading(false));
+      .catch((err: Error) => {
+        setError(err.message || 'Failed to load goods');
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -41,7 +32,7 @@ export const App: React.FC = () => {
         disabled={loading}
         type="button"
         data-cy="all-button"
-        onClick={handleLoadAll}
+        onClick={() => handleRequest(getAll)}
       >
         Load all goods
       </button>
@@ -50,7 +41,7 @@ export const App: React.FC = () => {
         disabled={loading}
         type="button"
         data-cy="first-five-button"
-        onClick={handleLoad5First}
+        onClick={() => handleRequest(get5First)}
       >
         Load 5 first goods
       </button>
@@ -59,10 +50,12 @@ export const App: React.FC = () => {
         disabled={loading}
         type="button"
         data-cy="red-button"
-        onClick={handleLoadRed}
+        onClick={() => handleRequest(getRedGoods)}
       >
         Load red goods
       </button>
+
+      {error && <div className="error">{error}</div>}
 
       <GoodsList goods={goods} />
     </div>
