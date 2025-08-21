@@ -7,31 +7,59 @@ import { getAll, get5First, getRedGoods } from './api/goods';
 
 export const App: React.FC = () => {
   const [goods, setGoods] = useState<Good[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const handleLoadAll = () => {
+    setLoading(true);
+    getAll()
+      .then(setGoods)
+      .catch(() => alert('Failed to load all goods. Please try again.'))
+      .finally(() => setLoading(false));
+  };
+
+  const handleLoad5First = () => {
+    setLoading(true);
+    get5First()
+      .then(setGoods)
+      .catch(() => alert('Failed to load first 5 goods'))
+      .finally(() => setLoading(false));
+  };
+
+  const handleLoadRed = () => {
+    setLoading(true);
+    getRedGoods()
+      .then(setGoods)
+      .catch(() => alert('Failed to load red goods'))
+      .finally(() => setLoading(false));
+  };
 
   return (
     <div className="App">
       <h1>Dynamic list of Goods</h1>
 
       <button
+        disabled={loading}
         type="button"
         data-cy="all-button"
-        onClick={() => getAll().then(setGoods)}
+        onClick={handleLoadAll}
       >
         Load all goods
       </button>
 
       <button
+        disabled={loading}
         type="button"
         data-cy="first-five-button"
-        onClick={() => get5First().then(setGoods)}
+        onClick={handleLoad5First}
       >
         Load 5 first goods
       </button>
 
       <button
+        disabled={loading}
         type="button"
         data-cy="red-button"
-        onClick={() => getRedGoods().then(setGoods)}
+        onClick={handleLoadRed}
       >
         Load red goods
       </button>
